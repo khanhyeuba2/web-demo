@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Đăng nhập & Đăng ký</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #f8bbd0, #fce4ec);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      width: 350px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #e91e63;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      background-color: #e91e63;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .toggle-link {
+      text-align: center;
+      margin-top: 10px;
+      color: #555;
+      font-size: 14px;
+    }
+
+    .toggle-link a {
+      color: #e91e63;
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Form Đăng Nhập -->
+    <div id="loginForm">
+      <h2>Đăng nhập</h2>
+      <input type="text" id="loginUser" placeholder="Tên tài khoản">
+      <input type="password" id="loginPass" placeholder="Mật khẩu">
+      <label><input type="checkbox" id="rememberLogin"> Nhớ mật khẩu</label>
+      <button onclick="handleLogin()">Đăng nhập</button>
+      <div class="toggle-link">
+        Bạn chưa có tài khoản? <a onclick="toggleForm('register')">Đăng ký</a>
+      </div>
+    </div>
+
+    <!-- Form Đăng Ký -->
+    <div id="registerForm" class="hidden">
+      <h2>Đăng ký</h2>
+      <input type="text" id="registerUser" placeholder="Tên tài khoản">
+      <input type="password" id="registerPass" placeholder="Mật khẩu">
+      <button onclick="handleRegister()">Đăng ký</button>
+      <div class="toggle-link">
+        Đã có tài khoản? <a onclick="toggleForm('login')">Đăng nhập</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Auto login nếu đã nhớ
+    const saved = JSON.parse(localStorage.getItem("rememberedAccount"));
+    if (saved) {
+      const users = JSON.parse(localStorage.getItem("accounts") || "{}");
+      if (users[saved.username] === saved.password) {
+        window.location.href = "home.html";
+      }
+    }
+
+    function toggleForm(form) {
+      document.getElementById("loginForm").classList.toggle("hidden", form === "register");
+      document.getElementById("registerForm").classList.toggle("hidden", form === "login");
+    }
+
+    function handleRegister() {
+      const user = document.getElementById("registerUser").value.trim();
+      const pass = document.getElementById("registerPass").value;
+
+      if (!user || !pass) {
+        alert("Vui lòng nhập đầy đủ thông tin.");
+        return;
+      }
+
+      let accounts = JSON.parse(localStorage.getItem("accounts") || "{}");
+      if (accounts[user]) {
+        alert("Tài khoản đã tồn tại!");
+        return;
+      }
+
+      accounts[user] = pass;
+      localStorage.setItem("accounts", JSON.stringify(accounts));
+      alert("Đăng ký thành công! Bạn có thể đăng nhập.");
+      toggleForm("login");
+    }
+
+    function handleLogin() {
+      const user = document.getElementById("loginUser").value.trim();
+      const pass = document.getElementById("loginPass").value;
+      const remember = document.getElementById("rememberLogin").checked;
+
+      let accounts = JSON.parse(localStorage.getItem("accounts") || "{}");
+
+      if (accounts[user] && accounts[user] === pass) {
+        if (remember) {
+          localStorage.setItem("rememberedAccount", JSON.stringify({ username: user, password: pass }));
+        } else {
+          sessionStorage.setItem("tempAccount", user);
+        }
+        window.location.href = "index.html";
+      } else {
+        alert("Sai tài khoản hoặc mật khẩu.");
+      }
+    }
+  </script>
+</body>
+</html>
